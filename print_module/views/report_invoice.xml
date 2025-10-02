@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- QWeb Report Template -->
+    <template id="report_custom_invoice" inherit_id="web.external_layout">
+        <t t-foreach="docs" t-as="doc">
+            <t t-set="company" t-value="doc.company_id"/>
+            <div t-attf-class="article o_report" t-att-data-oe-model="account.move" t-att-data-oe-id="doc.id">
+                <div class="page">
+                    <div class="text-center">
+                        <h2>Tax Invoice</h2>
+                        <p>IRN Number: <strong t-esc="doc.irn_number or 'N/A'"/></p>
+                        <p>Acknowledgement Date: <strong t-esc="doc.ack_date or 'N/A'"/></p>
+                        <p>Acknowledgement Number: <strong t-esc="doc.ack_number or 'N/A'"/></p>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <tr>
+                            <td><strong>Firm Name:</strong></td>
+                            <td><t t-esc="company.name"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Company Address:</strong></td>
+                            <td><t t-esc="company.street + (', ' + company.street2 if company.street2 else '') + ', ' + company.city + ', ' + company.state_id.name + ' - ' + company.zip if company.city else 'N/A'"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>GSTIN:</strong></td>
+                            <td><t t-esc="company.vat or 'N/A'"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Invoice No:</strong></td>
+                            <td><t t-esc="doc.name"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Invoice Date:</strong></td>
+                            <td><t t-esc="doc.invoice_date"/></td>
+                        </tr>
+                    </table>
+
+                    <h3>Billing &amp; Shipping Details</h3>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td><strong>Buyer (Bill to):</strong></td>
+                            <td><t t-esc="doc.partner_id.name"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Consignee (Ship to):</strong></td>
+                            <td><t t-esc="doc.partner_shipping_id.name or doc.partner_id.name"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>GSTIN:</strong></td>
+                            <td><t t-esc="doc.partner_id.vat or 'N/A'"/></td>
+                        </tr>
+                    </table>
+
+                    <h3>Invoice Items</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Description</th>
+                                <th>HSN/SAC</th>
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>UOM</th>
+                                <th>Tax</th>
+                                <th>Taxable Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.invoice_line_ids" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line_index + 1"/></td>
+                                    <td><t t-esc="line.name"/></td>
+                                    <td><t t-esc="line.product_id.l10n_in_hsn_code or 'N/A'"/></td>
+                                    <td><t t-esc="line.quantity"/></td>
+                                    <td><t t-esc="line.price_unit"/></td>
+                                    <td><t t-esc="line.product_uom_id.name or 'Nos'"/></td>
+                                    <td>
+                                        <t t-esc="', '.join([str(tax.amount) + '%' for tax in line.tax_ids]) or '0%'"/>
+                                    </td>
+                                    <td><t t-esc="line.price_subtotal"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <h3>Summary</h3>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td><strong>Subtotal:</strong></td>
+                            <td><t t-esc="doc.amount_untaxed"/></td>
+                        </tr>
+                        <tr t-if="doc.amount_tax">
+                            <td><strong>CGST:</strong></td>
+                            <td><t t-esc="doc.amount_tax / 2"/></td>
+                        </tr>
+                        <tr t-if="doc.amount_tax">
+                            <td><strong>SGST:</strong></td>
+                            <td><t t-esc="doc.amount_tax / 2"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Amount:</strong></td>
+                            <td><t t-esc="doc.amount_total"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Amount in Words:</strong></td>
+                            <td><t t-esc="doc.currency_id.amount_to_text(doc.amount_total)"/></td>
+                        </tr>
+                    </table>
+
+                    <p>Declaration: We declare that this invoice shows the actual price of goods described and that all particulars are true and correct.</p>
+
+                    <div class="text-right">
+                        <p>For <strong><t t-esc="company.name"/></strong></p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Report Action -->
+    <record id="action_report_custom_invoice" model="ir.actions.report">
+        <field name="name">Custom Invoice Report</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">print_module.report_custom_invoice_document</field>
+    </record>
+
+    <!-- Button in Invoice Form -->
+    <record id="view_move_form_inherit" model="ir.ui.view">
+        <field name="name">account.move.form.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_print_custom_invoice"
+                        type="object"
+                        string="Print Custom Invoice"
+                        class="btn-primary"
+                        icon="fa-print"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

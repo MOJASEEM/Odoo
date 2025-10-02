@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Main Menu -->
+    <menuitem id="menu_man" name="Man Power Request" sequence="1"/>
+
+    <!-- Submenu for Requirement -->
+    <menuitem id="man_details"
+              name="Requirement"
+              parent="menu_man"
+              action="action_man_generation"
+              sequence="10"/>
+
+    <!-- Action for Department -->
+   <!-- <record id="action_dep_details" model="ir.actions.act_window">
+        <field name="name">Department</field>
+        <field name="view_mode">tree,form</field>
+        <field name="res_model">manpower_request.department</field>
+        <field name="target">current</field>
+    </record>-->
+
+    <!-- Department menuitem with action reference -->
+    <menuitem id="dep_details"
+              name="Department"
+              parent="man_details"
+              action="action_dep_details"
+              sequence="9" />
+
+    <!-- Other menuitems (you can keep them as is) -->
+    <menuitem id="job_details"
+              name="Job Position"
+              parent="man_details"
+              action="action_job_details"
+              sequence="10"/>
+    <menuitem id="qual_details"
+              name="Educational Qualification"
+              parent="man_details"
+              action="action_qual_details"
+              sequence="10"/>
+    <menuitem id="skill_details"
+              name="Skill"
+              parent="man_details"
+              action="action_skill_details"/>
+    <menuitem id="menu_manpower_settings" name="Manpower Settings"
+          parent="base.menu_management"
+          sequence="10" />
+
+</odoo>

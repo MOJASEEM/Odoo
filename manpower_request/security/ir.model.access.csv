@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_man_model,Man_Model,model_man_model,,1,1,1,1
+access_manpower_department,access_manpower_department,model_manpower_request_department,,1,1,1,1
+access_man_job,Job Model,model_man_job,,1,1,1,1
+access_man_qual,Qual Model,model_man_qual,,1,1,1,1
+access_man_skill,Skill Model,model_man_skill,,1,1,1,1
+access_man_skill_line,Skill Model,model_man_skill_line,,1,1,1,1
